@@ -9,16 +9,30 @@ body {
   align-items: center;
   justify-content: center;
   color: #3a2a50;
+  overflow: hidden;
 }
 
-/* .container {
-  background: #fff;
+.chai-biscuit-background {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -1;
+  background: url('assets/download(2).gif') no-repeat center center;
+  background-size: cover;
+  opacity: 0.1;
+}
+
+.main-content {
+  background: rgba(255, 255, 255, 0.9);
   padding: 30px 40px;
   border-radius: 20px;
   box-shadow: 0 15px 30px rgba(78, 0, 128, 0.3);
   text-align: center;
   width: 320px;
-} */
+  user-select: none;
+}
 
 h1 {
   margin-bottom: 20px;
@@ -27,18 +41,41 @@ h1 {
   color: #7f5af0;
 }
 
-.board {
+#board {
+  position: relative;
+  width: 300px;
+  height: 300px;
   display: grid;
-  grid-template-columns: repeat(3, 80px);
-  grid-template-rows: repeat(3, 80px);
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
   gap: 15px;
-  margin-bottom: 25px;
+  margin: 0 auto 25px auto;
 }
 
+.cell {
+  background: #e1d7fc; /* very light lavender */
+  border-radius: 18px; /* more rounded */
+  box-shadow:
+    inset 0 4px 8px rgba(217, 176, 251, 0.7),  /* subtle inner highlight */
+    0 6px 10px rgba(189, 149, 248, 0.15);      /* soft outer shadow */
+  border: none; /* remove harsh border */
+  font-size: 48px; /* keep emoji big */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+  user-select: none;
+  position: relative;
+}
 
 .cell:hover {
-  background: #e0ccff;
+  background: #e9e6ff; /* gentle highlight on hover */
+  box-shadow:
+    inset 0 6px 10px rgba(255, 255, 255, 0.85),
+    0 8px 15px rgba(160, 140, 210, 0.25);
 }
+
 
 .cell.chai::before {
   content: '🍵';
@@ -68,53 +105,27 @@ h1 {
   cursor: pointer;
   transition: background 0.3s ease;
   box-shadow: 0 5px 10px rgba(127, 90, 240, 0.5);
+  user-select: none;
 }
 
 .restart-btn:hover {
   background: #a07cff;
 }
 
-#board {
-  position: relative; /* needed for absolutely positioned winning line */
-  width: 300px;       /* set to your board size */
-  height: 300px;      /* set to your board size */
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 5px;
-}
-
-.cell {
-  width: 100px;
-  height: 100px;
-  background: #faf5ff;
-  border-radius: 12px;
-  box-shadow: inset 0 0 10px #ddd6ff;
-  border: 2px solid #333;
-  font-size: 2rem; /* or 48px if you prefer emoji bigger */
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.3s ease;
-  user-select: none;
-  position: relative;
-}
-
-
 /* Winning line styles */
 .winning-line {
   position: absolute;
   height: 6px;
-  background-color: #ff4747; /* bright red or choose your color */
+  background-color: #fe5db8; /* bright red */
   border-radius: 3px;
   top: 0;
   left: 0;
-  pointer-events: none; /* let clicks pass through */
+  pointer-events: none;
   transition: all 0.3s ease;
   z-index: 10;
 }
 
-
+/* Animations for extra polish */
 @keyframes pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
@@ -124,16 +135,4 @@ h1 {
   0% { transform: translateY(0); }
   50% { transform: translateY(-10px); }
   100% { transform: translateY(0); }
-}
-
-.chai-biscuit-background {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: -1;
-  background: url('assets/download(1).gif') no-repeat center center;
-  background-size: cover;
-  opacity: 0.1;
 }
