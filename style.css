@@ -1,4 +1,3 @@
-/* style.css */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
 
 body {
@@ -86,4 +85,35 @@ h1 {
 
 .restart-btn:hover {
   background: #a07cff;
+}
+
+.winning-line {
+  position: absolute;
+  height: 4px;
+  background: linear-gradient(90deg, #7f5af0, #c084fc, #f472b6);
+  border-radius: 2px;
+  animation: pulse 1.5s infinite;
+  pointer-events: none;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes float {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0); }
+}
+
+.chai-biscuit-background {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: -1;
+  background: url('path_to_chai_icon.png'), url('path_to_biscuit_icon.png');
+  background-repeat: repeat;
+  animation: float 6s ease-in-out infinite;
+  opacity: 0.1;
 }

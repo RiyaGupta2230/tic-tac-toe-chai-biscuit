@@ -1,5 +1,3 @@
-// script.js
-
 const board = document.getElementById('board');
 const cells = Array.from(document.querySelectorAll('.cell'));
 const message = document.getElementById('message');
@@ -14,7 +12,7 @@ let isGameOver = false;
 
 function render() {
   cells.forEach((cell, idx) => {
-    cell.className = 'cell';
+    cell.className = 'cell'; // reset class
     if (boardState[idx] === HUMAN) cell.classList.add('chai');
     else if (boardState[idx] === AI) cell.classList.add('biscuit');
   });
