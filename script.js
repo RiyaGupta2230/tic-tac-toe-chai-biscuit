@@ -12,22 +12,22 @@ let winningLineElem = null;
 
 function render() {
   cells.forEach((cell, idx) => {
-    cell.className = 'cell'; // reset class
+    cell.className = 'cell'; // reset classes
     if (boardState[idx] === HUMAN) cell.classList.add('chai');
     else if (boardState[idx] === AI) cell.classList.add('biscuit');
   });
 }
 
-// Modified checkWinner to return winning combination or null
+// Check if a player has won and return the winning combo or null
 function checkWinner(bd, player) {
   const wins = [
     [0,1,2],[3,4,5],[6,7,8], // rows
-    [0,3,6],[1,4,7],[2,5,8], // cols
+    [0,3,6],[1,4,7],[2,5,8], // columns
     [0,4,8],[2,4,6]          // diagonals
   ];
   for (const combo of wins) {
     if (combo.every(i => bd[i] === player)) {
-      return combo; // Return the winning combo
+      return combo; // winning combination found
     }
   }
   return null;
@@ -43,8 +43,6 @@ function createWinningLine(combo) {
   winningLineElem = document.createElement('div');
   winningLineElem.classList.add('winning-line');
 
-  // Position and rotate the line based on combo
-  // We'll calculate coordinates from cell positions
   const startCell = cells[combo[0]];
   const endCell = cells[combo[2]];
 
@@ -52,33 +50,87 @@ function createWinningLine(combo) {
   const startRect = startCell.getBoundingClientRect();
   const endRect = endCell.getBoundingClientRect();
 
-  // Calculate center points relative to board
   const startX = startRect.left + startRect.width / 2 - boardRect.left;
   const startY = startRect.top + startRect.height / 2 - boardRect.top;
   const endX = endRect.left + endRect.width / 2 - boardRect.left;
   const endY = endRect.top + endRect.height / 2 - boardRect.top;
 
-  // Calculate length and angle of the line
   const length = Math.hypot(endX - startX, endY - startY);
   const angle = Math.atan2(endY - startY, endX - startX) * (180 / Math.PI);
 
-  // Style the winning line element
   winningLineElem.style.width = length + 'px';
   winningLineElem.style.top = startY + 'px';
   winningLineElem.style.left = startX + 'px';
   winningLineElem.style.transform = `rotate(${angle}deg)`;
   winningLineElem.style.transformOrigin = '0 50%';
 
-  // Add line to the board container
   board.appendChild(winningLineElem);
+
+  requestAnimationFrame(() => {
+    winningLineElem.classList.add('show');
+  });
 }
 
-// Updated aiTurn and humanTurn to handle winning line display
+// Minimax algorithm implementation
+function minimax(newBoard, player) {
+  const availSpots = newBoard.reduce((acc, val, idx) => {
+    if (val === null) acc.push(idx);
+    return acc;
+  }, []);
+
+  const humanWin = checkWinner(newBoard, HUMAN);
+  const aiWin = checkWinner(newBoard, AI);
+
+  if (humanWin) return { score: -10 };
+  else if (aiWin) return { score: 10 };
+  else if (availSpots.length === 0) return { score: 0 };
+
+  const moves = [];
+
+  for (const i of availSpots) {
+    const move = {};
+    move.index = i;
+    newBoard[i] = player;
+
+    if (player === AI) {
+      const result = minimax(newBoard, HUMAN);
+      move.score = result.score;
+    } else {
+      const result = minimax(newBoard, AI);
+      move.score = result.score;
+    }
+
+    newBoard[i] = null; // Undo move
+    moves.push(move);
+  }
+
+  let bestMove;
+  if (player === AI) {
+    let bestScore = -Infinity;
+    for (const move of moves) {
+      if (move.score > bestScore) {
+        bestScore = move.score;
+        bestMove = move;
+      }
+    }
+  } else {
+    let bestScore = Infinity;
+    for (const move of moves) {
+      if (move.score < bestScore) {
+        bestScore = move.score;
+        bestMove = move;
+      }
+    }
+  }
+
+  return bestMove;
+}
+
 function aiTurn() {
   if (isGameOver) return;
 
   let best = minimax(boardState, AI);
-  if (best !== undefined && best.index !== undefined) {
+  if (best && typeof best.index === 'number') {
     boardState[best.index] = AI;
     render();
 
@@ -119,7 +171,6 @@ function humanTurn(idx) {
   }, 300);
 }
 
-// Clear winning line on restart
 restartBtn.addEventListener('click', () => {
   boardState = Array(9).fill(null);
   isGameOver = false;
