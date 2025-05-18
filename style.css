@@ -11,14 +11,14 @@ body {
   color: #3a2a50;
 }
 
-.container {
+/* .container {
   background: #fff;
   padding: 30px 40px;
   border-radius: 20px;
   box-shadow: 0 15px 30px rgba(78, 0, 128, 0.3);
   text-align: center;
   width: 320px;
-}
+} */
 
 h1 {
   margin-bottom: 20px;
@@ -35,19 +35,6 @@ h1 {
   margin-bottom: 25px;
 }
 
-.cell {
-  background: #faf5ff;
-  border-radius: 12px;
-  box-shadow: inset 0 0 10px #ddd6ff;
-  font-size: 48px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.3s ease;
-  user-select: none;
-  position: relative;
-}
 
 .cell:hover {
   background: #e0ccff;
@@ -87,14 +74,46 @@ h1 {
   background: #a07cff;
 }
 
+#board {
+  position: relative; /* needed for absolutely positioned winning line */
+  width: 300px;       /* set to your board size */
+  height: 300px;      /* set to your board size */
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+}
+
+.cell {
+  width: 100px;
+  height: 100px;
+  background: #faf5ff;
+  border-radius: 12px;
+  box-shadow: inset 0 0 10px #ddd6ff;
+  border: 2px solid #333;
+  font-size: 2rem; /* or 48px if you prefer emoji bigger */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s ease;
+  user-select: none;
+  position: relative;
+}
+
+
+/* Winning line styles */
 .winning-line {
   position: absolute;
-  height: 4px;
-  background: linear-gradient(90deg, #7f5af0, #c084fc, #f472b6);
-  border-radius: 2px;
-  animation: pulse 1.5s infinite;
-  pointer-events: none;
+  height: 6px;
+  background-color: #ff4747; /* bright red or choose your color */
+  border-radius: 3px;
+  top: 0;
+  left: 0;
+  pointer-events: none; /* let clicks pass through */
+  transition: all 0.3s ease;
+  z-index: 10;
 }
+
 
 @keyframes pulse {
   0%, 100% { opacity: 1; }
@@ -109,11 +128,12 @@ h1 {
 
 .chai-biscuit-background {
   position: fixed;
-  top: 0; left: 0; width: 100%; height: 100%;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
   z-index: -1;
-  background: url('path_to_chai_icon.png'), url('path_to_biscuit_icon.png');
-  background-repeat: repeat;
-  animation: float 6s ease-in-out infinite;
+  background: url('assets/download(1).gif') no-repeat center center;
+  background-size: cover;
   opacity: 0.1;
 }

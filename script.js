@@ -6,9 +6,9 @@ const restartBtn = document.getElementById('restartBtn');
 const HUMAN = 'chai';    // 🍵 player
 const AI = 'biscuit';    // 🍪 computer
 
-// Board state: array of 9 elements: 'chai', 'biscuit', or null
 let boardState = Array(9).fill(null);
 let isGameOver = false;
+let winningLineElem = null;
 
 function render() {
   cells.forEach((cell, idx) => {
@@ -18,67 +18,62 @@ function render() {
   });
 }
 
+// Modified checkWinner to return winning combination or null
 function checkWinner(bd, player) {
   const wins = [
     [0,1,2],[3,4,5],[6,7,8], // rows
     [0,3,6],[1,4,7],[2,5,8], // cols
     [0,4,8],[2,4,6]          // diagonals
   ];
-  return wins.some(combo => combo.every(i => bd[i] === player));
+  for (const combo of wins) {
+    if (combo.every(i => bd[i] === player)) {
+      return combo; // Return the winning combo
+    }
+  }
+  return null;
 }
 
 function isBoardFull(bd) {
   return bd.every(cell => cell !== null);
 }
 
-// Minimax algorithm for AI
-function minimax(newBoard, player) {
-  if (checkWinner(newBoard, HUMAN)) return {score: -10};
-  if (checkWinner(newBoard, AI)) return {score: 10};
-  if (isBoardFull(newBoard)) return {score: 0};
+function createWinningLine(combo) {
+  if (winningLineElem) winningLineElem.remove();
 
-  let moves = [];
+  winningLineElem = document.createElement('div');
+  winningLineElem.classList.add('winning-line');
 
-  for (let i=0; i < newBoard.length; i++) {
-    if (newBoard[i] === null) {
-      let move = {};
-      move.index = i;
-      newBoard[i] = player;
+  // Position and rotate the line based on combo
+  // We'll calculate coordinates from cell positions
+  const startCell = cells[combo[0]];
+  const endCell = cells[combo[2]];
 
-      if (player === AI) {
-        let result = minimax(newBoard, HUMAN);
-        move.score = result.score;
-      } else {
-        let result = minimax(newBoard, AI);
-        move.score = result.score;
-      }
+  const boardRect = board.getBoundingClientRect();
+  const startRect = startCell.getBoundingClientRect();
+  const endRect = endCell.getBoundingClientRect();
 
-      newBoard[i] = null;
-      moves.push(move);
-    }
-  }
+  // Calculate center points relative to board
+  const startX = startRect.left + startRect.width / 2 - boardRect.left;
+  const startY = startRect.top + startRect.height / 2 - boardRect.top;
+  const endX = endRect.left + endRect.width / 2 - boardRect.left;
+  const endY = endRect.top + endRect.height / 2 - boardRect.top;
 
-  let bestMove;
-  if (player === AI) {
-    let bestScore = -Infinity;
-    for (let i=0; i < moves.length; i++) {
-      if (moves[i].score > bestScore) {
-        bestScore = moves[i].score;
-        bestMove = moves[i];
-      }
-    }
-  } else {
-    let bestScore = Infinity;
-    for (let i=0; i < moves.length; i++) {
-      if (moves[i].score < bestScore) {
-        bestScore = moves[i].score;
-        bestMove = moves[i];
-      }
-    }
-  }
-  return bestMove;
+  // Calculate length and angle of the line
+  const length = Math.hypot(endX - startX, endY - startY);
+  const angle = Math.atan2(endY - startY, endX - startX) * (180 / Math.PI);
+
+  // Style the winning line element
+  winningLineElem.style.width = length + 'px';
+  winningLineElem.style.top = startY + 'px';
+  winningLineElem.style.left = startX + 'px';
+  winningLineElem.style.transform = `rotate(${angle}deg)`;
+  winningLineElem.style.transformOrigin = '0 50%';
+
+  // Add line to the board container
+  board.appendChild(winningLineElem);
 }
 
+// Updated aiTurn and humanTurn to handle winning line display
 function aiTurn() {
   if (isGameOver) return;
 
@@ -86,9 +81,12 @@ function aiTurn() {
   if (best !== undefined && best.index !== undefined) {
     boardState[best.index] = AI;
     render();
-    if (checkWinner(boardState, AI)) {
+
+    const winningCombo = checkWinner(boardState, AI);
+    if (winningCombo) {
       isGameOver = true;
       message.textContent = '🍪 Biscuit (AI) wins! Try again?';
+      createWinningLine(winningCombo);
     } else if (isBoardFull(boardState)) {
       isGameOver = true;
       message.textContent = "It's a draw!";
@@ -103,9 +101,11 @@ function humanTurn(idx) {
   boardState[idx] = HUMAN;
   render();
 
-  if (checkWinner(boardState, HUMAN)) {
+  const winningCombo = checkWinner(boardState, HUMAN);
+  if (winningCombo) {
     isGameOver = true;
     message.textContent = '🍵 Chai (You) wins! 🎉';
+    createWinningLine(winningCombo);
     return;
   }
   if (isBoardFull(boardState)) {
@@ -119,18 +119,22 @@ function humanTurn(idx) {
   }, 300);
 }
 
-// Event listeners
-cells.forEach((cell, idx) => {
-  cell.addEventListener('click', () => {
-    humanTurn(idx);
-  });
-});
-
+// Clear winning line on restart
 restartBtn.addEventListener('click', () => {
   boardState = Array(9).fill(null);
   isGameOver = false;
   message.textContent = '';
+  if (winningLineElem) {
+    winningLineElem.remove();
+    winningLineElem = null;
+  }
   render();
+});
+
+cells.forEach((cell, idx) => {
+  cell.addEventListener('click', () => {
+    humanTurn(idx);
+  });
 });
 
 render();
